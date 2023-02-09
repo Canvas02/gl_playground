@@ -49,6 +49,8 @@ impl Camera {
         if self.left_movement {
             self.position -= self.right * velocity;
         }
+        // Uncomment for true FPS camera
+        // self.position.y = 0.0;
 
         self.update_camera_matrices();
     }
