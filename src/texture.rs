@@ -3,6 +3,8 @@
 
 use std::path::Path;
 
+use tracing::instrument;
+
 pub struct Texture<'a> {
     gl: &'a gl::Gl,
     id: u32,
@@ -89,9 +91,10 @@ impl<'a> Texture<'a> {
         })
     }
 
+    #[instrument(skip(gl))]
     pub fn from_file(
         gl: &'a gl::Gl,
-        path: impl AsRef<Path>,
+        path: impl AsRef<Path> + std::fmt::Debug,
         label: Option<&'a str>,
     ) -> Result<Self, TextureError> {
         fn inner<'b>(
@@ -118,6 +121,7 @@ impl<'a> Texture<'a> {
         inner(gl, path.as_ref(), label)
     }
 
+    #[instrument(skip(gl))]
     pub fn from_memory(
         gl: &'a gl::Gl,
         data: &[u8],

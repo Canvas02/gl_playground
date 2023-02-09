@@ -18,19 +18,16 @@ const SCR_WIDTH: u32 = 1280;
 const SCR_HEIGHT: u32 = 720;
 
 fn main() {
-    // Always log trace and up in debug
-    cfg_if::cfg_if! {
-        if #[cfg(debug_assertions)] {
-            env_logger::Builder::from_default_env()
-                .filter_level(log::LevelFilter::Trace)
-                .try_init()
-                .expect("Log: Failed to initialize env_logger");
+    let mut collector = tracing_subscriber::fmt();
 
-            log::info!("Program: Running debug build")
-        } else {
-            env_logger::try_init().expect("Log: Failed to initialize env_logger");
-        }
+    // Always log trace and up in debug
+    #[cfg(debug_assertions)]
+    {
+        collector = collector.with_max_level(tracing::Level::TRACE);
+        log::info!("Program: Running debug build")
     }
+
+    collector.init();
 
     // Create a glfw context
     let mut glfw_context = glfw::init(glfw::LOG_ERRORS).expect("Failed to init glfw");
@@ -90,12 +87,8 @@ fn main() {
     .expect("Failed to create shader program");
     log::debug!("GL: Built program successfully");
 
-    let texture = Texture::from_memory(
-        &gl,
-        include_bytes!("../assets/brick.webp"),
-        Some("Brick wall"),
-    )
-    .expect("Failed to load texture");
+    let texture = Texture::from_file(&gl, "assets/brick.webp", Some("Brick wall"))
+        .expect("Failed to load texture");
 
     unsafe {
         gl.ClearColor(0.2, 0.2, 0.2, 1.0);

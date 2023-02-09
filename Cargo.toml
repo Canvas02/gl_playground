@@ -7,8 +7,7 @@ edition = "2021"
 
 [dependencies]
 bytemuck = { version = "1.13", features = ["derive"] }
-env_logger = "0.10"
-glfw = { version = "0.50", features = ["log"] }
+glfw = { version = "0.51", features = ["log"] }
 image = { version = "0.24", features = [
 	"jpeg",
 	"jpeg_rayon",
@@ -19,8 +18,10 @@ log = "0.4"
 thiserror = "1.0"
 
 gl = { path = "./libs/gl" }
-cfg-if = "1.0.0"
+# cfg-if = "1.0.0"
 glam = "0.22.0"
+tracing = { version = "0.1", features = ["log"] }
+tracing-subscriber = "0.3"
 
 [build-dependencies]
 fs_extra = "1.2"
