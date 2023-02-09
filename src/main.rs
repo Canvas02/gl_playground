@@ -190,21 +190,21 @@ fn main() {
         gl.VertexArrayAttribBinding(vao, 1, 0);
         gl.VertexArrayAttribBinding(vao, 2, 0);
 
-        let mut camera = Camera::new(
-            glam::vec3(0.0, 0.0, 1.0),
-            glam::Vec3::Y,
-            None,
-            None,
-            0.25,
-            0.01,
-        );
+        // tell GLFW to capture our mouse
+        window.set_cursor_mode(glfw::CursorMode::Disabled);
+        if glfw_context.supports_raw_motion() {
+            window.set_raw_mouse_motion(true);
+        }
 
-        let proj = glam::Mat4::perspective_rh_gl(
-            100.0f32.to_radians(),
-            SCR_WIDTH as f32 / SCR_HEIGHT as f32,
-            0.1,
-            100.0,
-        );
+        let mut camera = Camera::default();
+        camera.set_position(glam::vec3(0.0, 0.0, 1.0));
+
+        // let proj = glam::Mat4::perspective_rh_gl(
+        //     100.0f32.to_radians(),
+        //     SCR_WIDTH as f32 / SCR_HEIGHT as f32,
+        //     0.1,
+        //     100.0,
+        // );
 
         let proj_view_loc = program.get_unifrom("uProjView").unwrap();
 
@@ -226,7 +226,7 @@ fn main() {
             program.bind();
             texture.bind(0);
 
-            let proj_view = proj * camera.view_matrix();
+            let proj_view = camera.proj_view_matrix();
             gl.UniformMatrix4fv(proj_view_loc, 1, gl::FALSE, &proj_view.to_cols_array()[0]);
 
             glfw_context.poll_events();

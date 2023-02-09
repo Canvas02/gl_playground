@@ -77,6 +77,7 @@ impl<'a> Texture<'a> {
                 gl::UNSIGNED_BYTE,
                 data.as_ptr().cast(),
             );
+            gl.GenerateTextureMipmap(id);
         }
 
         Ok(Self {
