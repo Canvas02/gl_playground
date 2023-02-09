@@ -9,35 +9,10 @@ use std::{
     sync::mpsc::Receiver,
 };
 
-use gl_playground::{camera::Camera, program::Program, texture::Texture};
+use gl_playground::{
+    camera::Camera, program::Program, texture::Texture, vertex::Vertex, vertex::CUBE,
+};
 use glfw::Context;
-
-#[repr(C)]
-#[derive(Copy, Clone, Debug, Default, bytemuck::Pod, bytemuck::Zeroable)]
-struct Vertex {
-    pub position: [f32; 3],
-    pub color: [f32; 3],
-    pub uv: [f32; 2],
-}
-
-impl Vertex {
-    pub const fn new(position: [f32; 3], color: [f32; 3], uv: [f32; 2]) -> Self {
-        Self {
-            position,
-            color,
-            uv,
-        }
-    }
-}
-
-const TRIANGLE: [Vertex; 4] = [
-    Vertex::new([-0.5, -0.5, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0]),
-    Vertex::new([0.5, -0.5, 0.0], [0.0, 1.0, 0.0], [1.0, 0.0]),
-    Vertex::new([0.5, 0.5, 0.0], [0.0, 0.0, 1.0], [1.0, 1.0]),
-    Vertex::new([-0.5, 0.5, 0.0], [1.0, 1.0, 1.0], [0.0, 1.0]),
-];
-
-const TRIANGLE_IN: [u32; 6] = [0, 1, 2, 0, 3, 2];
 
 const SCR_WIDTH: u32 = 1280;
 const SCR_HEIGHT: u32 = 720;
@@ -133,33 +108,16 @@ fn main() {
         gl.CreateBuffers(1, &mut buffer);
         gl.NamedBufferStorage(
             buffer,
-            size_of_val(&TRIANGLE) as isize,
-            TRIANGLE.as_ptr().cast(),
+            size_of_val(&CUBE) as isize,
+            CUBE.as_ptr().cast(),
             gl::DYNAMIC_STORAGE_BIT,
         );
-        gl.ObjectLabel(gl::BUFFER, buffer, -1, ("Triangle\0").as_ptr().cast());
-
-        let mut index_buffer = 0;
-        gl.CreateBuffers(1, &mut index_buffer);
-        gl.NamedBufferStorage(
-            index_buffer,
-            size_of_val(&TRIANGLE_IN) as isize,
-            TRIANGLE_IN.as_ptr().cast(),
-            gl::DYNAMIC_STORAGE_BIT,
-        );
-        gl.ObjectLabel(
-            gl::BUFFER,
-            index_buffer,
-            -1,
-            ("Triangle - index\0").as_ptr().cast(),
-        );
+        gl.ObjectLabel(gl::BUFFER, buffer, -1, ("Cube\0").as_ptr().cast());
 
         gl.VertexArrayVertexBuffer(vao, 0, buffer, 0, size_of::<Vertex>() as i32);
-        gl.VertexArrayElementBuffer(vao, index_buffer);
 
         gl.EnableVertexArrayAttrib(vao, 0);
         gl.EnableVertexArrayAttrib(vao, 1);
-        gl.EnableVertexArrayAttrib(vao, 2);
 
         gl.VertexArrayAttribFormat(
             vao,
@@ -172,14 +130,6 @@ fn main() {
         gl.VertexArrayAttribFormat(
             vao,
             1,
-            3,
-            gl::FLOAT,
-            gl::FALSE,
-            bytemuck::offset_of!(Vertex, color) as u32,
-        );
-        gl.VertexArrayAttribFormat(
-            vao,
-            2,
             2,
             gl::FLOAT,
             gl::FALSE,
@@ -188,7 +138,6 @@ fn main() {
 
         gl.VertexArrayAttribBinding(vao, 0, 0);
         gl.VertexArrayAttribBinding(vao, 1, 0);
-        gl.VertexArrayAttribBinding(vao, 2, 0);
 
         // tell GLFW to capture our mouse
         window.set_cursor_mode(glfw::CursorMode::Disabled);
@@ -234,20 +183,19 @@ fn main() {
 
             camera.proccess_movement(delta_time as f32);
 
-            // gl::DrawArrays(gl::TRIANGLES, 0, 3);
-            gl.DrawElements(
-                gl::TRIANGLES,
-                TRIANGLE_IN.len() as i32,
-                gl::UNSIGNED_INT,
-                std::ptr::null(),
-            );
+            gl.DrawArrays(gl::TRIANGLES, 0, (CUBE.len() * 3) as i32);
+            // gl.DrawElements(
+            //     gl::TRIANGLES,
+            //     CUBE.len() as i32,
+            //     gl::UNSIGNED_INT,
+            //     std::ptr::null(),
+            // );
 
             window.swap_buffers();
         }
         log::debug!("GLFW Window: Ended game loop");
 
         gl.DeleteBuffers(1, &buffer);
-        gl.DeleteBuffers(1, &index_buffer);
         gl.DeleteVertexArrays(1, &vao);
     }
 
