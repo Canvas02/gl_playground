@@ -116,13 +116,23 @@ impl Camera {
             }
             // Doing the movement in the event handler (can't think of anything better)
             glfw::WindowEvent::CursorPos(xpos, ypos) => {
-                let xoffset = *xpos as f32 - self.last_mouse_pos.0;
-                let yoffset = *ypos as f32 - self.last_mouse_pos.1;
+                let xpos = *xpos as f32;
+                let ypos = *ypos as f32;
+
+                let xoffset = xpos - self.last_mouse_pos.0;
+                let yoffset = self.last_mouse_pos.1 - ypos; // Why is this a thing
+
+                // let xoffset = self.last_mouse_pos.0 - xpos;
+                // let yoffset = self.last_mouse_pos.1 - ypos;
+
+                self.last_mouse_pos = (xpos, ypos);
+
+                dbg!(&xoffset, &yoffset);
 
                 self.look_x += xoffset * self.sensitivity;
                 self.look_y += yoffset * self.sensitivity;
 
-                self.look_y = self.look_x.clamp(-90.0, 90.0);
+                self.look_y = self.look_x.clamp(-89.0, 89.0);
 
                 self.view_dir = Camera::get_view_from_angles(self.look_x, self.look_y);
             }
