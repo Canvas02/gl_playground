@@ -24,14 +24,14 @@ fn main() {
     #[cfg(debug_assertions)]
     {
         collector = collector.with_max_level(tracing::Level::TRACE);
-        log::info!("Program: Running debug build")
+        tracing::info!("Program: Running debug build")
     }
 
     collector.init();
 
     // Create a glfw context
     let mut glfw_context = glfw::init(glfw::LOG_ERRORS).expect("Failed to init glfw");
-    log::debug!("GLFW: Created context");
+    tracing::debug!("GLFW: Created context");
 
     // Create a glfw window
     glfw_context.window_hint(glfw::WindowHint::OpenGlProfile(
@@ -50,14 +50,14 @@ fn main() {
             glfw::WindowMode::Windowed,
         )
         .expect("Failed to create window");
-    log::debug!("GLFW: Created window");
+    tracing::debug!("GLFW: Created window");
 
     window.set_all_polling(true);
     window.make_current();
-    log::debug!("GLFW Window: Made window current");
+    tracing::debug!("GLFW Window: Made window current");
 
     let gl = gl::Gl::load_with(|s| window.get_proc_address(s) as *const _);
-    log::debug!("GL: Loaded functions?");
+    tracing::debug!("GL: Loaded functions?");
 
     unsafe {
         #[cfg(debug_assertions)]
@@ -66,13 +66,13 @@ fn main() {
         gl.Viewport(0, 0, SCR_WIDTH as i32, SCR_HEIGHT as i32);
     }
 
-    log::debug!("GL: Vendor: {}", unsafe {
+    tracing::debug!("GL: Vendor: {}", unsafe {
         CStr::from_ptr(gl.GetString(gl::VENDOR) as *const _)
             .to_str()
             .unwrap()
     });
 
-    log::debug!("GL: Version: {}", unsafe {
+    tracing::debug!("GL: Version: {}", unsafe {
         CStr::from_ptr(gl.GetString(gl::VERSION) as *const _)
             .to_str()
             .unwrap()
@@ -85,7 +85,7 @@ fn main() {
         Some("Basic Shader"),
     )
     .expect("Failed to create shader program");
-    log::debug!("GL: Built program successfully");
+    tracing::debug!("GL: Built program successfully");
 
     let texture = Texture::from_file(&gl, "assets/brick.webp", Some("Brick wall"))
         .expect("Failed to load texture");
@@ -157,7 +157,7 @@ fn main() {
         // Camera Fix
         // window.set_cursor_pos_polling(false);
 
-        log::debug!("GLFW Window: Starting game loop");
+        tracing::debug!("GLFW Window: Starting game loop");
         while !window.should_close() {
             delta_time = current_time - last_time;
             last_time = current_time;
@@ -186,13 +186,13 @@ fn main() {
 
             window.swap_buffers();
         }
-        log::debug!("GLFW Window: Ended game loop");
+        tracing::debug!("GLFW Window: Ended game loop");
 
         gl.DeleteBuffers(1, &buffer);
         gl.DeleteVertexArrays(1, &vao);
     }
 
-    log::info!("Program: End");
+    tracing::info!("Program: End");
 }
 
 fn handle_events(
@@ -211,7 +211,7 @@ fn handle_events(
                 unsafe {
                     gl.Viewport(0, 0, w, h);
                 }
-                // log::trace!("GLFW Window: Resized framebuffer to {}x{}", w, h);
+                // tracing::trace!("GLFW Window: Resized framebuffer to {}x{}", w, h);
             }
             _ => {}
         }
@@ -265,13 +265,13 @@ extern "system" fn gl_debug_callback(
         );
 
         match severity {
-            gl::DEBUG_SEVERITY_HIGH => log::error!("{}", message),
-            gl::DEBUG_SEVERITY_MEDIUM => log::warn!("{}", message),
-            gl::DEBUG_SEVERITY_LOW => log::warn!("{}", message),
-            gl::DEBUG_SEVERITY_NOTIFICATION => log::info!("{}", message),
-            _ => log::debug!("{}", message),
+            gl::DEBUG_SEVERITY_HIGH => tracing::error!("{}", message),
+            gl::DEBUG_SEVERITY_MEDIUM => tracing::warn!("{}", message),
+            gl::DEBUG_SEVERITY_LOW => tracing::warn!("{}", message),
+            gl::DEBUG_SEVERITY_NOTIFICATION => tracing::info!("{}", message),
+            _ => tracing::debug!("{}", message),
         }
     } else {
-        log::error!("OpenGL: Failed to convert message from pointer to str");
+        tracing::error!("OpenGL: Failed to convert message from pointer to str");
     }
 }

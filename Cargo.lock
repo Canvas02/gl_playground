@@ -182,7 +182,6 @@ dependencies = [
  "glfw",
  "glob",
  "image",
- "log",
  "thiserror",
  "tracing",
  "tracing-subscriber",
@@ -202,7 +201,6 @@ checksum = "919ebc7bdbf60a529689a5e58f80d9dcde27e3d2ab4f2f7ce711ec439fe789c5"
 dependencies = [
  "bitflags",
  "glfw-sys",
- "log",
  "objc",
  "raw-window-handle",
  "winapi",
@@ -516,7 +514,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ce8c33a8d48bd45d624a6e523445fd21ec13d3653cd51f681abf67418f54eb8"
 dependencies = [
  "cfg-if",
- "log",
  "pin-project-lite",
  "tracing-attributes",
  "tracing-core",
