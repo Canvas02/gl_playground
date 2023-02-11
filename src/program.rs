@@ -16,7 +16,7 @@ impl<'a> Program<'a> {
         fragment: &str,
         label: Option<&'a str>,
     ) -> Result<Self, ProgramError> {
-        log::trace!("Shader: Compiling vertex shader: {}", vertex);
+        tracing::trace!("Shader: Compiling vertex shader: {}", vertex);
         let vertex = create_shader(
             gl,
             vertex,
@@ -28,7 +28,7 @@ impl<'a> Program<'a> {
             },
         )?;
 
-        log::trace!("Shader: Compiling fragment shader: {}", fragment);
+        tracing::trace!("Shader: Compiling fragment shader: {}", fragment);
         let fragment = create_shader(
             gl,
             fragment,
@@ -72,7 +72,7 @@ impl<'a> Program<'a> {
                 buffer.set_len(info_log_len as usize);
 
                 let info_log = String::from_utf8(buffer).expect("Failed to read info_log");
-                // log::debug!("Failed to link shader program: info_log: {}", info_log);
+                // tracing::debug!("Failed to link shader program: info_log: {}", info_log);
                 return Err(ProgramError::ShaderCompilationError(info_log));
             }
 
@@ -142,33 +142,33 @@ fn create_shader<'a>(
     if id == 0 {
         return Err(ProgramError::CreationError);
     } else {
-        log::trace!("Create Shader object: {}", id);
+        tracing::trace!("Create Shader object: {}", id);
     }
 
     unsafe {
         if let Some(label) = label {
             gl.ObjectLabel(gl::SHADER, id, label.len() as i32, label.as_ptr().cast());
-            log::trace!("Adding label to Shader ({}): {}", id, label);
+            tracing::trace!("Adding label to Shader ({}): {}", id, label);
         }
 
-        log::trace!("Adding Shader ({}) source", id);
+        tracing::trace!("Adding Shader ({}) source", id);
         let c_source = CString::new(source).expect("Failed to make CString");
         gl.ShaderSource(id, 1, &c_source.as_ptr(), &(source.len() as i32));
-        log::trace!("Added Shader ({}) source", id);
+        tracing::trace!("Added Shader ({}) source", id);
         gl.CompileShader(id);
-        log::trace!("Compiling Shader ({})", id);
+        tracing::trace!("Compiling Shader ({})", id);
 
         let mut status: i32 = 0;
         gl.GetShaderiv(id, gl::COMPILE_STATUS, &mut status);
         if status != (gl::TRUE as i32) {
-            log::trace!("Shader ({}) compilation failed", id);
+            tracing::trace!("Shader ({}) compilation failed", id);
 
-            log::trace!("Getting info_log length for Shader ({})", id);
+            tracing::trace!("Getting info_log length for Shader ({})", id);
             let mut info_log_len = 0;
             gl.GetShaderiv(id, gl::INFO_LOG_LENGTH, &mut info_log_len);
-            log::trace!("Info_log length for Shader ({}) is {}", id, info_log_len);
+            tracing::trace!("Info_log length for Shader ({}) is {}", id, info_log_len);
 
-            log::trace!("Getting info_log for Shader ({})", id);
+            tracing::trace!("Getting info_log for Shader ({})", id);
             let mut buffer: Vec<u8> = Vec::with_capacity(info_log_len as usize);
             gl.GetShaderInfoLog(
                 id,
@@ -179,7 +179,7 @@ fn create_shader<'a>(
             buffer.set_len(info_log_len as usize);
 
             let info_log = String::from_utf8(buffer).expect("Failed to read info_log");
-            // log::debug!("Failed to compile shader: info_log: {}", info_log);
+            // tracing::debug!("Failed to compile shader: info_log: {}", info_log);
 
             return Err(ProgramError::ShaderCompilationError(info_log));
         }

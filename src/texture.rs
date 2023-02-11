@@ -30,7 +30,7 @@ impl<'a> Texture<'a> {
 
         unsafe {
             gl.CreateTextures(gl::TEXTURE_2D, 1, &mut id);
-            log::trace!(
+            tracing::trace!(
                 "Created Texture ({}) ({} x {}) with {} channels",
                 id,
                 width,
@@ -40,14 +40,14 @@ impl<'a> Texture<'a> {
 
             if let Some(label) = label {
                 gl.ObjectLabel(gl::TEXTURE, id, label.len() as i32, label.as_ptr().cast());
-                log::trace!("Adding label to Texture ({}): {}", id, label);
+                tracing::trace!("Adding label to Texture ({}): {}", id, label);
             }
 
             gl.TextureParameteri(id, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
             gl.TextureParameteri(id, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
             gl.TextureParameteri(id, gl::TEXTURE_MIN_FILTER, gl::LINEAR as i32);
             gl.TextureParameteri(id, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
-            log::trace!(
+            tracing::trace!(
                 r#"Texture parameters:
                 Wrap S: Repeat,
                 Wrap T: Repeat,
